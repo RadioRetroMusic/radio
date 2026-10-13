@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎵 Radio Retro Music 📻</title>
+
+  <!-- Configuración PWA (Instalable) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121212">
+  
+  <!-- Configuración Específica para iOS (Apple) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Radio Retro">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/GhLd7HXn/Logo4.png">
+
+  <!-- Carga de Scripts -->
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://extassisnetwork.com/player/Luna/luna.js"></script>
+
+  <!-- Estilos CSS Optimizados -->
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --panel-bg: rgba(18, 18, 18, 0.98);
+      --border-color: rgba(255, 255, 255, 0.15);
+      --btn-bg: rgba(255, 255, 255, 0.15);
+      --accent-color: #00f3ff;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-color) !important;
+      font-family: 'Be Vietnam', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @keyframes rainbowAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Título configurado en gradiente Tricolor Naranja - Verde - Amarillo */
+    .rainbow-title {
+      background: linear-gradient(90deg, #ff7f00, #00ff00, #ffff00, #ff7f00) !important;
+      background-size: 300% 300% !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      animation: rainbowAnimation 6s ease infinite !important;
+      font-weight: bold !important;
+      filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.3)) !important;
+    }
+
+    #extassisnetwork .lunasong,
+    #extassisnetwork .lunaartist,
+    #extassisnetwork [class*="song"],
+    #extassisnetwork [class*="artist"],
+    #extassisnetwork [class*="title"]:not(.rainbow-title) {
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+      display: block !important;
+      margin-top: 6px !important;
+    }
+
+    /* Botón Play Limpio con Relleno Naranja - Verde - Amarillo */
+    .clean-play-btn {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      filter: drop-shadow(0 0 6px rgba(255, 200, 0, 0.4)) !important;
+      animation: none !important;
+    }
+
+    .clean-play-btn svg,
+    .clean-play-btn path,
+    .clean-play-btn i {
+      fill: url(#tricolor-gradient) !important;
+      color: transparent !important;
+      filter: none !important;
+      stroke: none !important;
+    }
+
+    /* Barra de botones posicionada arriba del botón Play */
+    .player-action-bar {
+      position: fixed;
+      bottom: 155px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(18, 18, 18, 0.88);
+      padding: 6px 12px;
+      border-radius: 25px;
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      width: max-content;
+      max-width: 95vw;
+      box-sizing: border-box;
+    }
+
+    /* Estilos base de los botones de acción con texto arcoíris */
+    .action-btn {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 7px 12px;
+      border-radius: 18px;
+      cursor: pointer;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .action-btn span.btn-label {
+      background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000) !important;
+      background-size: 400% 400% !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      animation: rainbowAnimation 8s ease infinite !important;
+      font-weight: bold;
+    }
+
+    .action-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    }
+
+    .action-btn:active {
+      transform: translateY(0) scale(0.95);
+    }
+
+    .side-sidebar {
+      position: fixed;
+      top: 0;
+      width: 320px;
+      height: 100%;
+      background-color: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      z-index: 9998;
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      padding: 70px 20px 20px 20px;
+      box-sizing: border-box;
+      color: var(--text-color);
+      overflow-y: auto;
+    }
+
+    .history-sidebar {
+      right: 0;
+      border-left: 1px solid var(--border-color);
+      transform: translateX(100%);
+    }
+    .history-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .schedule-sidebar {
+      left: 0;
+      border-right: 1px solid var(--border-color);
+      transform: translateX(-100%);
+    }
+    .schedule-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .side-sidebar h3 {
+      margin-top: 0;
+      font-size: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      color: #ffcc00;
+    }
+
+    .list-container {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .list-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+
+    .history-song {
+      color: var(--accent-color) !important;
+      font-weight: 600;
+      display: block;
+    }
+
+    .history-time {
+      color: #ff9800 !important;
+      font-size: 11px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .list-item .primary-text {
+      color: var(--text-color);
+      font-weight: 500;
+      display: block;
+    }
+
+    .list-item .secondary-text {
+      opacity: 0.6;
+      font-size: 11px;
+      margin-top: 3px;
+      display: block;
+    }
+
+    .schedule-item .show-time {
+      color: var(--accent-color);
+      font-weight: bold;
+      font-size: 12px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* Botón Instalar App Ubicado al Costado Derecho */
+    .install-pwa-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 10000;
+      background: transparent;
+      border: none;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.2s, opacity 0.2s, filter 0.2s;
+    }
+
+    .install-pwa-btn span.btn-label {
+      background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000) !important;
+      background-size: 400% 400% !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      animation: rainbowAnimation 8s ease infinite !important;
+      font-weight: bold;
+    }
+
+    .install-pwa-btn:hover {
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+      transform: scale(1.05);
+    }
+
+    .install-pwa-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: url(#rainbow-gradient);
+    }
+
+    .install-pwa-btn:active {
+      transform: scale(0.92);
+      opacity: 0.8;
+    }
+
+    @media (max-width: 480px) {
+      .side-sidebar {
+        width: 100% !important;
+      }
+      .player-action-bar {
+        bottom: 145px;
+        padding: 5px 8px;
+        gap: 5px;
+      }
+      .action-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+      .install-pwa-btn {
+        top: 12px;
+        right: 12px;
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+    }
+
+    #extassisnetwork [class*="volume"],
+    #extassisnetwork [id*="volume"],
+    #extassisnetwork .lunavolume,
+    #extassisnetwork .volume-slider,
+    #extassisnetwork .volume-icon,
+    #extassisnetwork .volume-holder,
+    #extassisnetwork .volume-bar,
+    #extassisnetwork .luna-volume {
+      display: none !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Gradientes SVG globales reutilizables -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <!-- Gradiente Arcoíris General -->
+      <linearGradient id="rainbow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ff0000" />
+        <stop offset="20%" stop-color="#ff7f00" />
+        <stop offset="40%" stop-color="#ffff00" />
+        <stop offset="60%" stop-color="#00ff00" />
+        <stop offset="80%" stop-color="#0000ff" />
+        <stop offset="100%" stop-color="#9400d3" />
+      </linearGradient>
+
+      <!-- Gradiente Exclusivo Naranja - Verde - Amarillo -->
+      <linearGradient id="tricolor-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ff7f00" />    <!-- Naranja -->
+        <stop offset="50%" stop-color="#00ff00" />   <!-- Verde -->
+        <stop offset="100%" stop-color="#ffff00" />  <!-- Amarillo -->
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Botón de instalación -->
+  <button class="install-pwa-btn" id="installPwaBtn">
+    <svg viewBox="0 0 24 24">
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+    </svg>
+    <span class="btn-label">Instalar App</span>
+  </button>
+
+  <!-- Barra de botones ubicada arriba del botón Play -->
+  <div class="player-action-bar" id="playerActionBar">
+    <button class="action-btn" id="toggleSchedule" title="Ver Programación">
+      <span>📅</span> <span class="btn-label">Programación</span>
+    </button>
+    <button class="action-btn" id="toggleHistory" title="Ver Historial">
+      <span>📻</span> <span class="btn-label">Historial</span>
+    </button>
+    <a href="https://wa.me/56975612326?text=Hola,%20quiero%20enviar%20un%20saludo%20o%20pedir%20un%20tema%20en%20Radio%20Retro%20Music:" target="_blank" class="action-btn" title="Contacto WhatsApp">
+      <span>🎵</span> <span class="btn-label">Solicita tu tema</span>
+    </a>
+  </div>
+
+  <div class="side-sidebar schedule-sidebar" id="scheduleSidebar">
+    <h3>Parrilla de Programas</h3>
+    <ul class="list-container">
+      <li class="list-item schedule-item">
+        <span class="show-time">20:00 - 22:00 Hrs</span>
+        <span class="primary-text">De regreso a casa </span>
+        <span class="secondary-text">Lunes a Viernes</span>
+      </li>
+      <li class="list-item schedule-item">
+        <span class="show-time">22:00 - 24:00 Hrs</span>
+        <span class="primary-text">Tu mejor compañia</span>
+        <span class="secondary-text">Lunes - Viernes</span>
+      </li>
+      <li class="list-item schedule-item">
+        <span class="show-time">20:00 a 22:00 Hrs</span>
+        <span class="primary-text">La mejor música</span>
+        <span class="secondary-text">Sábados - Domingo</span>
+      </li>   
+      <li class="list-item schedule-item">
+        <span class="show-time">22:00 a 24:00 Hrs</span>
+        <span class="primary-text">Las Mejores Mezclas</span>
+        <span class="secondary-text">Sábados - Domingo</span>
+        <span class="secondary-text">Dj TaZz</span>
+      </li>        
+    </ul>
+  </div>
+
+  <div class="side-sidebar history-sidebar" id="historySidebar">
+    <h3>Últimas canciones</h3>
+    <ul class="list-container" id="historyList">
+      <li class="list-item"><span class="history-song">Cargando historial...</span></li>
+    </ul>
+  </div>
+
+  <div id="extassisnetwork" style="width:100%; height:100vh;"></div>
+
+  <script>
+    $("#extassisnetwork").lunaradio({
+      streamurl: "https://streaming.viphosting.cl:8102",
+      radioname: "📼 Radio Retro Music 📻",
+      coverimage: "https://i.postimg.cc/GhLd7HXn/Logo4.png",
+      onlycoverimage: false,
+      userinterface: "big",
+      backgroundcolor: "#121212",
+      fontcolor: "#ffffff",
+      hightlightcolor: "#ffffff",
+      fontname: "Be Vietnam",
+      googlefont: "Be Vietnam",
+      fontratio: "0.25",
+      scroll: "true",
+      coverstyle: "animated",
+      usevisualizer: "real",
+      visualizertype: "6",
+      streamtype: "shoutcast2",
+      shoutcastpath: "/stream",
+      shoutcastid: "1",
+      metadatainterval: "5000",
+      volume: "100",
+      volumecontrol: false,
+      usestreamcorsproxy: "true",
+      width: "100%",
+      height: "100%"
+    });
+
+    function applyCustomStyles() {
+      $("#extassisnetwork *").each(function() {
+        let text = $(this).text().trim();
+        if ((text.includes("Radio Retro Music") || text.includes("📼 Radio Retro Music 📻")) && $(this).children().length === 0) {$(this).addClass("rainbow-title");
+        } else if ($(this).children().length === 0 && text.includes(" - ") && !text.includes("Radio Retro Music")) {
+          this.style.setProperty("font-size", "12px", "important");
+          this.style.setProperty("display", "block", "important");
+          this.style.setProperty("margin-top", "6px", "important");
+        }
+      });
+
+      let playBtn = $("#extassisnetwork [class*='play'], #extassisnetwork [id*='play'], #extassisnetwork .lunaplay, #extassisnetwork .luna-play-btn");
+      playBtn.addClass("clean-play-btn");
+      
+      playBtn.find("svg, path, i").css({
+        "fill": "url(#tricolor-gradient) !important",
+        "color": "transparent !important",
+        "filter": "none !important",
+        "drop-shadow": "none !important"
+      });
+
+      $("#extassisnetwork canvas, #extassisnetwork [id*='visualizer'], #extassisnetwork [class*='visualizer']").css({
+        "color": "#00f3ff !important",
+        "fill": "#00f3ff !important"
+      });
+    }
+
+    $("#toggleHistory").on("click", function(e) {
+      e.stopPropagation();
+      $("#historySidebar").toggleClass("open");
+      $("#scheduleSidebar").removeClass("open");
+      fetchDirectHistory();
+    });
+
+    $("#toggleSchedule").on("click", function(e) {
+      e.stopPropagation();
+      $("#scheduleSidebar").toggleClass("open");
+      $("#historySidebar").removeClass("open");
+    });
+
+    $(document).on("click", function(e) {
+      if (!$(e.target).closest('.side-sidebar, .player-action-bar').length) {$(".side-sidebar").removeClass("open");
+      }
+    });
+
+    let localHistory = [];
+
+    function fetchDirectHistory() {
+      $.ajax({
+        url: "https://streaming.viphosting.cl:8102/played?sid=1&type=json",
+        dataType: "jsonp",
+        timeout: 3000
+      }).done(function(data) {
+        if (Array.isArray(data) && data.length > 0) {
+          let html = "";
+          data.slice(0, 10).forEach(function(item) {
+            let songTitle = item.title || item.song || "Canción";
+            let playedTime = item.playedat ? new Date(item.playedat * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+            html += `
+              <li class="list-item">
+                <span class="history-song">${songTitle}</span>
+                ${playedTime ? `<span class="history-time">Sonó a las ${playedTime}</span>` : ''}
+              </li>`;
+          });
+          $("#historyList").html(html);
+        } else {
+          renderLocalHistory();
+        }
+      }).fail(function() {
+        renderLocalHistory();
+      });
+    }
+
+    function renderLocalHistory() {
+      if (localHistory.length === 0) {
+        let currentSong = getCurrentSongFromDOM();
+        if (currentSong) {
+          let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          localHistory.push({ title: currentSong, time: time });
+        }
+      }
+
+      if (localHistory.length > 0) {
+        let html = "";
+        localHistory.forEach(function(item) {
+          html += `
+            <li class="list-item">
+              <span class="history-song">${item.title}</span>
+              <span class="history-time">Sonó a las ${item.time}</span>
+            </li>`;
+        });
+        $("#historyList").html(html);
+      }
+    }
+
+    function getCurrentSongFromDOM() {
+      let song = "";
+      $("#extassisnetwork *").each(function() {
+        let txt = $(this).text().trim();
+        if (txt && txt.includes(" - ") && !txt.includes("Radio Retro Music") && $(this).children().length === 0) {
+          song = txt;
+          return false;
+        }
+      });
+      return song;
+    }
+
+    function updateLocalHistory() {
+      let currentSong = getCurrentSongFromDOM();
+      if (currentSong && currentSong !== "") {
+        let lastSong = localHistory.length > 0 ? localHistory[0].title : "";
+        if (currentSong !== lastSong) {
+          let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          localHistory.unshift({ title: currentSong, time: time });
+          if (localHistory.length > 10) localHistory.pop();
+          renderLocalHistory();
+        }
+      }
+    }
+
+    setInterval(updateLocalHistory, 4000);
+
+    const observer = new MutationObserver(function() {
+      $("#extassisnetwork").find("[class*='volume'], [id*='volume'], .volume-bar, .volume-slider").remove();
+      applyCustomStyles();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // --- REGISTRO DEL SERVICE WORKER E INSTALACIÓN AUTOMÁTICA PWA ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('installPwaBtn');
+
+    function isStandalone() {
+      return (window.matchMedia('(display-mode: standalone)').matches) || 
+             (window.navigator.standalone === true) || 
+             document.referrer.includes('android-app://');
+    }
+
+    if (isStandalone()) {
+      if (installBtn) installBtn.style.display = 'none';
+    }
+
+    // 1. Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker registrado con éxito:', reg.scope))
+          .catch((err) => console.error('Error al registrar Service Worker:', err));
+      });
+    }
+
+    // 2. Capturar el evento de instalación y disparar el aviso al primer toque/clic
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      const autoPromptTrigger = () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+              console.log('App instalada por el usuario');
+            }
+            deferredPrompt = null;
+          });
+        }
+        document.removeEventListener('click', autoPromptTrigger);
+        document.removeEventListener('touchstart', autoPromptTrigger);
+      };
+
+      document.addEventListener('click', autoPromptTrigger, { once: true });
+      document.addEventListener('touchstart', autoPromptTrigger, { once: true });
+    });
+
+    // 3. Botón manual por si el usuario canceló el aviso automático
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const choiceResult = await deferredPrompt.userChoice;
+          if (choiceResult.outcome === 'accepted') {
+            console.log('El usuario aceptó instalar la app');
+          }
+          deferredPrompt = null;
+        } else {
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          if (isIOS) {
+            alert('Para instalar en iPhone/iPad:\n1. Toca el botón Compartir en Safari.\n2. Selecciona "Agregar al inicio".');
+          } else {
+            alert('Para instalar esta PWA:\nToca el menú del navegador (los 3 puntos arriba a la derecha) y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+          }
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installBtn) installBtn.style.display = 'none';
+      console.log('PWA instalada con éxito');
+    });
+  </script>
+</body>
+</html>
