@@ -87,10 +87,10 @@
       stroke: none !important;
     }
 
-    /* Barra de botones posicionada más arriba del botón Play */
+    /* Barra de botones posicionada justo debajo del anuncio de la canción */
     .player-action-bar {
-      position: fixed;
-      bottom: 200px; /* Cambiado de 155px a 200px para subir los botones */
+      position: absolute;
+      top: 62%; /* Ubicado justo por debajo de la zona central de metadatos */
       left: 50%;
       transform: translateX(-50%);
       z-index: 9999;
@@ -283,7 +283,7 @@
         width: 100% !important;
       }
       .player-action-bar {
-        bottom: 185px; /* Cambiado de 145px a 185px para móviles */
+        top: 60%; /* Ajuste específico para pantallas móviles */
         padding: 5px 8px;
         gap: 5px;
       }
@@ -348,7 +348,7 @@
     <span class="btn-label">Instalar App</span>
   </button>
 
-  <!-- Barra de botones ubicada arriba del botón Play -->
+  <!-- Barra de botones ubicada justo debajo del título/anuncio de la canción -->
   <div class="player-action-bar" id="playerActionBar">
     <button class="action-btn" id="toggleSchedule" title="Ver Programación">
       <span>📅</span> <span class="btn-label">Programación</span>
